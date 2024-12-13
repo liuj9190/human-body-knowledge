@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一天一則，發現366個人體有趣知識</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    #game-container, #result-container {
+      display: none;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      width: 80%;
+      max-width: 550px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+      z-index: 10;  /* 保证不会被其他元素遮挡 */
+      position: relative; /* 使其可以在屏幕上正确显示 */
+    }
+    #game-container.active, #result-container.active {
+      display: block;
+    }
+   
+    #question {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    .option {
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+      background: #007BFF; /* 用於選項按鈕的背景，代表藍色 */
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      text-align: left;
+    }
+    .option:hover {
+      background: #0056b3;  /* 用於選項按鈕的懸停狀態，代表更深的藍色 */
+    }
+    #result-text {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+    #correct-answer {
+      margin-bottom: 20px;
+      font-size: 1em;
+      color: #555555;  /* 用於正確答案解釋文字，代表深灰色 */
+    }
+ 
+    #book-title1 {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color:  #FF4D40;  /* 用於書名 1 和結果文字正確狀態，代表藍色 */
+    }
+    #book-title2 {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333e;  
+    }
+    #book-cover {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    #next {
+      padding: 10px 20px;
+      background: #28a745;  /* 用於下一題按鈕的背景，代表綠色 */
+      color: white;   /* 用於選項按鈕和下一題按鈕的文字，代表白色文字 */
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #next:hover {
+      background: #1e7e34;  /* 用於下一題按鈕的懸停狀態，代表更深的綠色 */
+    }
+    #more-info {
+  
+        font-size: 0.8em; /* 縮小字體 */
+  
+        color: #0056b3;
+        margin-top: 10px; /* 增加與其他元素的間距 */
+}
+
+    /* 新增樣式 */
+    .correct {
+      color: #0056b3;  /* 代表答對文字為藍色 */
+      font-weight: bold;
+    }
+    .incorrect {
+      color: #c0392b;  /* 代表答錯文字為紅色 */
+      font-weight: bold;
+    }
+
+    /* 媒體查詢：適應不同螢幕大小 */
+    @media (max-width: 600px) {
+      #question {
+        font-size: 1.2em;
+      }
+      .option {
+        font-size: 0.9em;
+      }
+      #result-text {
+        font-size: 1.2em;
+      }
+      #next {
+        font-size: 0.9em;
+      }
+    }
+    @media (max-width: 400px) {
+      #question {
+        font-size: 1em;
+      }
+      .option {
+        font-size: 0.8em;
+      }
+      #result-text {
+        font-size: 1em;
+      }
+      #next {
+        font-size: 0.8em;
+      }
+    }
+  </style>
+</head>
+<body id="background">
+  <div id="game-container">
+    <div id="question"></div>
+    <div id="options"></div>
+  </div>
+
+  <div id="result-container">
+    <div id="result-text"></div>
+    <div id="correct-answer"></div>
+    <div id="book-title1">新書推薦：</div>
+    <div id="book-title2">一天一則，發現366個人體有趣知識</div>
+    <a id="book-link" href="https://www.morningstar.com.tw/bookinfo.aspx?bookno=0165043" target="_blank">
+      <img id="book-cover" alt="書籍封面">
+    </a>
+    <div id="more-info">點擊書籍了解更多</div>
+    <button id="next">下一題</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "人類的心臟一生跳動幾次呢？",
+        options: ["1. 約5000萬次", "2. 約1億次", "3. 約30億次"],
+        answer: 2, 
+        explanation: "人類的心臟1分鐘約跳動60～80次，一天約跳動10萬次。如果活到80歲的話，心臟跳動約30億次。",
+        background: "background1.jpg",
+        bookCover: "book1.jpg"
+      },
+      {
+        question: "為甚麼感冒會發燒呢？",
+        options: ["1. 因為病毒入侵體內", "2. 因為肚子很溫暖", "3. 因為身處很冷的地方"],
+        answer: 0, 
+        explanation: "空氣中存在著許多引發疾病的細菌與病毒，會隨著空氣一起侵入人體。一旦身體虛弱，就會出現發燒等症狀。",
+        background: "background1.jpg",
+        bookCover: "book1.jpg"
+      },
+      {
+        question: "為甚麼吃太快對身體不好？",
+        options: ["1. 因為一下子就覺得飽，也就吃不多", "2. 因為沒有飽足感，容易吃過量", "3. 過於刺激肚子"],
+        answer: 1,
+        explanation: "大腦至少在飯後十五分鐘才會發出吃飽的訊息，所以吃飯吃太快的人，因為感受不到飽足感，不知不覺吃太多",
+        background: "background1.jpg",
+        bookCover: "book1.jpg"
+      },
+      {
+        question: "為甚麼右撇子比左撇子多？",
+        options: ["1. 因為掌管言語的是左腦", "2. 因為負責表達情感的是左腦", "3. 因為左腦比較大"],
+        answer: 0,
+        explanation: "據說約九成的人是右撇子。當人類開始學會用言語表達時，左腦就越來越發達，也更習慣使用右手了",
+        background: "background1.jpg",
+        bookCover: "book1.jpg"
+      },
+      {
+        question: "堅硬的牙齒表面是由什麼構成？",
+        options: ["1. 角蛋白", "2. 琺瑯質", "3. 象牙質"],
+        answer: 1,
+        explanation: "牙齒表面覆著一層非常堅硬的琺瑯質，內側則是象牙質。",
+        background: "background1.jpg",
+        bookCover: "book1.jpg"
+      },
+    ];
+
+    let remainingQuestions = [...questions];
+    const gameContainer = document.getElementById("game-container");
+    const resultContainer = document.getElementById("result-container");
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const resultText = document.getElementById("result-text");
+    const correctAnswer = document.getElementById("correct-answer");
+    const bookCover = document.getElementById("book-cover");
+    const nextButton = document.getElementById("next");
+    const background = document.getElementById("background");
+
+   function loadRandomQuestion() {
+  if (remainingQuestions.length === 0) {
+    questionElement.innerHTML = 
+       "本書一次網羅366個奇妙有趣的知識，<br>" + 
+       "搭配易懂的解答敘述，<br>" + 
+       "讓你輕鬆成為醫學小博士！";
+    questionElement.style.fontSize = "1em"; // 調整字體大小
+    questionElement.style.color = " black";     // 可選：調整字體顏色
+    optionsElement.innerHTML = "";
+
+    // 動態插入書籍封面和連結
+    const bookContainer = document.createElement("div");
+    bookContainer.style.textAlign = "center";
+    bookContainer.style.marginTop = "20px";
+
+    const bookLink = document.createElement("a");
+    bookLink.href = "https://www.morningstar.com.tw/bookinfo.aspx?bookno=165043";
+    bookLink.target = "_blank";
+
+    const bookCover = document.createElement("img");
+    bookCover.src = "book1.jpg";
+   
+    bookCover.style.maxWidth = "100%";
+    bookCover.style.height = "auto";
+    bookCover.style.marginBottom = "20px";
+
+    bookLink.appendChild(bookCover);
+    bookContainer.appendChild(bookLink);
+
+   
+    // 將書籍內容插入 optionsElement
+    optionsElement.appendChild(bookContainer);
+
+    return;
+   }
+      const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+      const q = remainingQuestions.splice(randomIndex, 1)[0];
+
+      questionElement.textContent = q.question;
+      optionsElement.innerHTML = "";
+      background.style.backgroundImage = `url(${q.background})`;
+
+      q.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.className = "option";
+        button.onclick = () => checkAnswer(index, q);
+        optionsElement.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selected, q) {
+      const isCorrect = selected === q.answer;
+
+      // 動態套用樣式
+      resultText.className = isCorrect ? "correct" : "incorrect";
+      resultText.textContent = isCorrect ? "答對了！" : "答錯了！";
+
+      correctAnswer.innerHTML = 
+        `<span style="color: brown;">正確答案：${q.options[q.answer]}。</span><br>` + 
+        `${q.explanation}`;
+      bookCover.src = q.bookCover;
+
+      gameContainer.classList.remove("active");
+      resultContainer.classList.add("active");
+    }
+
+    nextButton.onclick = () => {
+      loadRandomQuestion();
+      gameContainer.classList.add("active");
+      resultContainer.classList.remove("active");
+    };
+
+    loadRandomQuestion();
+    gameContainer.classList.add("active");
+  </script>
+</body>
+</html>
